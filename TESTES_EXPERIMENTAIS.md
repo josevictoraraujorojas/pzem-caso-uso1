@@ -50,7 +50,7 @@ Faça repetições em condições anotadas e registre hora inicial/final, mensag
 
 ## Limite do ensaio e salvamento dos logs
 
-O firmware limita o ensaio a 100 mensagens experimentais no fluxo indicado abaixo. Ao alcançar o limite, registra `[EXPERIMENTO][FIM]` e impede novas mensagens experimentais desse fluxo. No sniffer, a unidade é a mensagem JSON enviada pela UART; no receptor, são as mensagens publicadas no tópico `wifi`. O contador local não prova que todas as mensagens chegaram ao broker ou foram persistidas.
+O firmware PZEM limita o ensaio a 100 publicações de dados no tópico `energia`. Ao alcançar o limite, registra `[EXPERIMENTO][FIM]` e encerra a tarefa de publicação. O contador registra publicações aceitas localmente pela chamada MQTT; não prova que todas as mensagens chegaram ao broker ou foram persistidas.
 
 Para gravar a saída serial em um arquivo no computador, abra o PowerShell na pasta do projeto e execute (ajuste a porta serial conforme necessário):
 
