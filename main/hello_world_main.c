@@ -138,6 +138,9 @@ static void mqtt_task(void *pvParameters)
 
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
+
+    ESP_LOGI(TAG, "[EXPERIMENTO][TAREFA_ENCERRADA] total_mensagens=%d", mensagens_dados_publicadas);
+    vTaskDelete(NULL);
 }
 
 static void mqtt_event_handler(
