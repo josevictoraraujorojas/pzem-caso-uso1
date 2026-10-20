@@ -46,3 +46,24 @@ No Data Explorer do InfluxDB, selecione o bucket `caso_uso_1`, o measurement `en
 ## Repetições e registro dos resultados
 
 Faça repetições em condições anotadas e registre hora inicial/final, mensagens enviadas pelo ESP32, mensagens vistas no broker, mensagens recebidas pelo backend, gravações bem-sucedidas e erros. Não preencha resultados antes de executar o teste. O log do ESP32 confirma a tentativa/resultado local do envio MQTT, mas não comprova sozinho a persistência final.
+
+
+## Limite do ensaio e salvamento dos logs
+
+O firmware limita o ensaio a 100 mensagens experimentais no fluxo indicado abaixo. Ao alcançar o limite, registra `[EXPERIMENTO][FIM]` e impede novas mensagens experimentais desse fluxo. No sniffer, a unidade é a mensagem JSON enviada pela UART; no receptor, são as mensagens publicadas no tópico `wifi`. O contador local não prova que todas as mensagens chegaram ao broker ou foram persistidas.
+
+Para gravar a saída serial em um arquivo no computador, abra o PowerShell na pasta do projeto e execute (ajuste a porta serial conforme necessário):
+
+```powershell
+idf.py -p COM5 flash monitor 2>&1 | Tee-Object -FilePath experimento-pzem.log
+```
+
+O arquivo `experimento-pzem.log` será criado na pasta atual. Se o firmware já estiver gravado, use `idf.py -p COM5 monitor 2>&1 | Tee-Object -FilePath experimento-pzem.log` para não regravar a placa. Guarde o arquivo de cada execução separadamente e não reutilize o mesmo nome se quiser preservar o ensaio anterior.
+
+Para salvar também as mensagens observadas no broker, em outro PowerShell execute:
+
+```powershell
+mosquitto_sub -h HOST_DO_BROKER -p 1883 -t energia -v 2>&1 | Tee-Object -FilePath experimento-broker.log
+```
+
+Substitua `HOST_DO_BROKER` pelo host configurado no firmware. O arquivo do broker deve ser separado do log serial.
