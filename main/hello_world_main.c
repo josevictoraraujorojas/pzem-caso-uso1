@@ -25,7 +25,7 @@
 #define WIFI_SSID "Rojas_wgo_fibra"
 #define WIFI_PASS "jr131415"
 
-#define MQTT_BROKER_URI "mqtt://192.168.0.121:1883"
+#define MQTT_BROKER_URI "mqtt://192.168.0.115:1883"
 
 #define MQTT_DATA_TOPIC "energia"
 #define MQTT_REGISTER_TOPIC "monitorEnergia"

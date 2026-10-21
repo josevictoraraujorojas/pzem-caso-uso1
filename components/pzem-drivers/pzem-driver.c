@@ -128,22 +128,41 @@ uint16_t CRC16(const uint8_t *data, uint16_t len)
 
 void initialize_pzem(uint8_t txPin, uint8_t rxPin)
 {
-    uart_config_t uart_config;
-    uart_config.baud_rate = PZEM_UART_BAUD_RATE;
-    uart_config.data_bits = UART_DATA_8_BITS;
-    uart_config.parity = UART_PARITY_DISABLE;
-    uart_config.stop_bits = UART_STOP_BITS_1;
-    uart_config.flow_ctrl = UART_HW_FLOWCTRL_DISABLE;
-    uart_config.rx_flow_ctrl_thresh = 122;
-    uart_config.source_clk = UART_SCLK_APB;
+    uart_config_t uart_config = {
+        .baud_rate = PZEM_UART_BAUD_RATE,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .rx_flow_ctrl_thresh = 122,
+        .source_clk = UART_SCLK_DEFAULT,
+    };
 
-    ESP_ERROR_CHECK(uart_driver_install(PZEM_UART_NUM, 256, 0, 0, NULL, 0));
+    ESP_ERROR_CHECK(
+        uart_driver_install(
+            PZEM_UART_NUM,
+            PZEM_UART_BUFFER_SIZE,
+            0,
+            0,
+            NULL,
+            0
+        )
+    );
 
-    ESP_ERROR_CHECK(uart_param_config(PZEM_UART_NUM, &uart_config));
+    ESP_ERROR_CHECK(
+        uart_param_config(PZEM_UART_NUM, &uart_config)
+    );
 
-    ESP_ERROR_CHECK(uart_set_pin(PZEM_UART_NUM, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(
+        uart_set_pin(
+            PZEM_UART_NUM,
+            txPin,
+            rxPin,
+            UART_PIN_NO_CHANGE,
+            UART_PIN_NO_CHANGE
+        )
+    );
 }
-
 
 /*!
  * PZEM004Tv30::checkCRC
