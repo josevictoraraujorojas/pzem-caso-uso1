@@ -91,3 +91,53 @@ Este firmware representa a etapa de aquisição do caso de uso de monitoramento 
 - A publicação depende da conexão Wi-Fi e da disponibilidade do broker MQTT.
 - O formato do JSON deve permanecer compatível com o consumidor MQTT/API.
 - Os valores do exemplo são fictícios e servem apenas para demonstrar a estrutura da mensagem.
+
+## Testes experimentais do TCC
+
+Esta seção descreve como executar o teste do firmware e registrar evidências. O procedimento deve ser repetido em condições semelhantes e cada execução deve usar um arquivo de log próprio.
+
+### Objetivo e fluxo avaliado
+
+Verificar a aquisição das leituras do PZEM-004T e o envio das mensagens pelo tópico MQTT `energia`, observando os registros do ESP32, do broker e do backend do Caso de Uso 1, além de conferir os dados persistidos no InfluxDB.
+
+### Preparação
+
+1. Confira as credenciais Wi-Fi e o endereço/porta do broker MQTT no firmware.
+2. Conecte o PZEM e o ESP32 conforme a seção de hardware. Identifique a porta serial da placa.
+3. Inicie o broker MQTT, o InfluxDB, o Neo4j e o backend do [Caso de Uso 1](https://github.com/josevictoraraujorojas/caso-de-uso-1), com as configurações exigidas por cada serviço.
+4. Abra um terminal ESP-IDF na raiz deste repositório.
+
+### Execução e coleta dos logs
+
+Compile e grave o firmware (substitua `COM5` pela porta correta):
+
+```powershell
+idf.py build
+idf.py -p COM5 flash
+$env:PYTHONUTF8 = "1"
+$env:PYTHONIOENCODING = "utf-8"
+chcp 65001
+idf.py -p COM5 monitor 2>&1 | Tee-Object -FilePath "C:\Users\Jose\TCC-Experimentos\01-pzem-serial.log"
+```
+
+Crie antes a pasta de resultados, se necessário: `New-Item -ItemType Directory -Force -Path "$HOME\TCC-Experimentos"`. Encerre o monitor com `Ctrl+]` e depois execute `Stop-Transcript` no PowerShell, caso o terminal retorne ao prompt. Para observar o tópico no broker em outro terminal, use:
+
+```powershell
+mosquitto_sub -h HOST_DO_BROKER -p 1883 -t energia -v |
+  Tee-Object -FilePath "$HOME\TCC-Experimentos\05-mqtt-energia.log"
+```
+
+Substitua `HOST_DO_BROKER` pelo endereço real. Inicie o assinante antes do firmware; ele não recupera mensagens anteriores por padrão. Aguarde o marcador `[EXPERIMENTO][FIM]` do firmware.
+
+### Como o teste foi instrumentado
+
+O firmware registra marcadores com o prefixo `[EXPERIMENTO]`, incluindo tentativas/contagem de publicações e o término do envio. O limite experimental configurado é de até 100 publicações locais no tópico `energia`. Uma confirmação do cliente MQTT não comprova, sozinha, que o broker recebeu a mensagem; compare os logs do dispositivo, do assinante e do backend.
+
+### Verificação e interpretação
+
+- Conte os marcadores de envio no log serial e as mensagens observadas pelo assinante MQTT.
+- No log do backend, procure `[EXPERIMENTO][MQTT_RECEBIDO]`, `[EXPERIMENTO][INFLUX_INICIO]`, `[EXPERIMENTO][INFLUX_PERSISTIDO]` e eventuais marcadores de falha.
+- No InfluxDB, consulte o bucket `caso_uso_1` e a medição `energia`, ajustando o intervalo de tempo para a execução.
+- Registre horário de início/fim, quantidade de mensagens em cada etapa, registros encontrados no banco e erros.
+
+O resultado deve ser obtido por consulta ao banco; o marcador de persistência indica que a chamada de escrita não retornou erro, mas não substitui a conferência dos registros. Use um arquivo de log diferente para cada repetição.
