@@ -114,8 +114,10 @@ Compile e grave o firmware (substitua `COM5` pela porta correta):
 ```powershell
 idf.py build
 idf.py -p COM5 flash
-Start-Transcript -Path "$HOME\TCC-Experimentos\01-pzem-serial.log"
-idf.py -p COM5 monitor
+$env:PYTHONUTF8 = "1"
+$env:PYTHONIOENCODING = "utf-8"
+chcp 65001
+idf.py -p COM5 monitor 2>&1 | Tee-Object -FilePath "C:\Users\Jose\TCC-Experimentos\01-pzem-serial.log"
 ```
 
 Crie antes a pasta de resultados, se necessário: `New-Item -ItemType Directory -Force -Path "$HOME\TCC-Experimentos"`. Encerre o monitor com `Ctrl+]` e depois execute `Stop-Transcript` no PowerShell, caso o terminal retorne ao prompt. Para observar o tópico no broker em outro terminal, use:
