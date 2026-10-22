@@ -20,10 +20,10 @@
 #define RXD_PIN 16
 #define PZEM_ADDR 0xF8
 
-#define WIFI_SSID "Rojas_wgo_fibra"
-#define WIFI_PASS "jr131415"
+#define WIFI_SSID "IFMAKER"
+#define WIFI_PASS "12345678"
 
-#define MQTT_BROKER_URI "mqtt://192.168.0.121:1883"
+#define MQTT_BROKER_URI "mqtt://192.168.137.129:1883"
 
 #define MQTT_DATA_TOPIC "energia"
 #define MQTT_REGISTER_TOPIC "monitorEnergia"
